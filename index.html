@@ -1,0 +1,132 @@
+<div class="card-container"></div>
+
+<style>
+  @media (min-width: 54rem) {
+    :root {
+      --gap: 1rem;
+      --columns: 1;
+    }
+
+    .card {
+      background-color: #f0f0;
+      border-radius: 12px;
+      width: 100%;
+    }
+
+    .masonry-layout {
+      box-sizing: border-box;
+      display: grid;
+      grid-template-columns: repeat(var(--columns), 1fr);
+      grid-gap: var(--gap);
+      gap: var(--gap);
+      padding: var(--gap);
+    }
+
+    .masonry-layout div {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .shimmer-loader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(-45deg, #c7c4c4 25%, #ddd 50%, #eee 75%);
+      background-size: 400% 400%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 100% 0;
+      }
+    }
+  }
+</style>
+
+<script>
+  const gridContainer = document.querySelector('.card-container');
+
+  for (let i = 1; i <= 21; i++) {
+    const height = Math.floor(Math.random() * (300 - 100 + 1)) + 100;
+
+    const item = document.createElement('div');
+    item.className = 'card';
+    // item.textContent = `Article ${i}`;
+    item.style.backgroundImage = `url(https://picsum.photos/200/300?random=${i})`;
+    item.style.height = height + 'px';
+    item.style.position = 'relative';
+    item.style.overflow = 'hidden';
+
+    const shimmer = document.createElement('div');
+    shimmer.className = 'shimmer-loader';
+
+    item.appendChild(shimmer);
+
+    const image = document.createElement('img');
+    image.setAttribute('src', `https://picsum.photos/200/300?random=${i}`);
+    image.setAttribute('loading', `lazy`);
+    image.style.height = '100%';
+    image.style.width = '100%';
+    image.style.position = 'relative';
+    image.style.objectFit = 'cover';
+    item.appendChild(image);
+
+    gridContainer.appendChild(item);
+  }
+
+  function fetchMasonry(containerClass, itemsClass, columns, gap) {
+    // Get container element and items
+    const containerElement = document.querySelector('.' + containerClass);
+    // If container element is not found, exit the function
+    if (!containerElement) return;
+
+    // Get all masonry items
+    const masonryElements = document.querySelectorAll('.' + itemsClass);
+
+    // Create new masonry layout container
+    const newElement = document.createElement('div');
+    newElement.setAttribute('class', `masonry-layout ${containerClass}`);
+
+    // Set Variable --column to columns
+    document.documentElement.style.setProperty('--columns', columns);
+    document.documentElement.style.setProperty('--gap', gap + 'px');
+
+    // Append new container to the parent of the original container
+    const wrapperElement = containerElement.parentNode;
+    // Insert the new container after the original container
+    wrapperElement.insertBefore(newElement, containerElement.nextSibling);
+
+    // Create columns based on the specified number
+    for (let i = 1; i <= columns; i++) {
+      const newColumn = document.createElement('div');
+      newColumn.classList.add('masonry-column-' + i);
+      // Append each column to the new masonry layout container
+      newElement.appendChild(newColumn);
+    }
+
+    // Distribute items to columns
+    let countColumn = 1;
+    // Loop through each masonry item
+    masonryElements.forEach((element) => {
+      // Find the column to place the item
+      const col = newElement.querySelector('.masonry-column-' + countColumn);
+      // Append the item to the column
+      col.appendChild(element);
+      // Increment countColumn and reset to 1 if it exceeds the specified number of columns
+      countColumn = (countColumn % columns) + 1;
+    });
+
+    // Remove the old container from the DOM
+    wrapperElement.removeChild(containerElement);
+  }
+
+  /* Pass data to generate masonry layout */
+  fetchMasonry('card-container', 'card', 5, 10);
+</script>
